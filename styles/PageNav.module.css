@@ -1,0 +1,14 @@
+.pageInfo {
+  display: grid;
+  grid-template-columns: 20% 60% 20%;
+  align-items: center;
+}
+
+.pageInfoLink {
+  text-align: center;
+  background-color: rgb(124, 146, 165);
+  max-width: 150px;
+}
+.pageInfopp {
+  text-align: center;
+}

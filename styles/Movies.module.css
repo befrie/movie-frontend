@@ -1,0 +1,10 @@
+.mvcontainer {
+  display: grid;
+  grid-template-columns: 20% 50% 30%;
+  column-gap: 25px;
+  margin-top: 5px;
+}
+.movieImage {
+  /* border: 2px solid rgb(182, 171, 171); */
+  border-radius: 5px;
+}

@@ -1,0 +1,21 @@
+.grid {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 5px;
+  margin-bottom: 5px;
+  margin-right: 5px;
+}
+
+.adder {
+  /* width: 400px; */
+  height: 250px;
+  /* margin: 20px; */
+  border: 2px solid black;
+  box-sizing: border-box;
+  overflow-y: scroll;
+}
+
+.list {
+  display: inline;
+  margin-right: 40px;
+}
