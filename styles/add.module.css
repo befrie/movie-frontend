@@ -32,6 +32,13 @@
   margin-bottom: 5px;
 }
 
+.grid1 {
+  display: grid;
+  grid-template-columns: 1fr 4fr 1fr;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
 .flex {
   padding: "10px";
   border: 2px solid black;

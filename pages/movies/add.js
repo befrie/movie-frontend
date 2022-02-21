@@ -6,14 +6,21 @@ import { STRAPI_URL } from "@config/index";
 import { useState, useEffect } from "react";
 import ActorAdder from "@components/ActorAdder";
 import GenreAdder from "@components/GenreAdder";
+import Modal from "@components/Modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserNinja, faCircleMinus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUserNinja,
+  faCircleMinus,
+  faCirclePlus,
+  faStore,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function AddMoviePage(props) {
   const myGenres = props.genreListe;
   const myActors = props.actorsList;
+  const [showModal, setShowModal] = useState(false);
   const [selectedActors, setSelectedActors] = useState([]);
-  const selectedGenres = [];
+  const [selectedGenres, setSelectedGenres] = useState([]);
   const [values, setValues] = useState({
     titel: "",
     regie: "",
@@ -34,21 +41,27 @@ export default function AddMoviePage(props) {
   //   evt.target.value = act.attributes.name;
   // };
 
-  const addGenre = (evt) => {
-    console.log("Selected Genre: ", evt.target.value);
-    evt.target.value = "";
-  };
+  // const addGenre = (evt) => {
+  //   console.log("Selected Genre: ", evt.target.value);
+  //   evt.target.value = "";
+  // };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("handleSubmit ...");
   };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setValues({ ...values, [name]: value });
   };
   const handleAddActor = (actor) => {
     setSelectedActors((prevSelectedActors) => [...selectedActors, actor]);
+    // console.log("ID in parent: ", actor.id);
+  };
+
+  const handleAddGenre = (genre) => {
+    setSelectedGenres((prevSelectedGenres) => [...selectedGenres, genre]);
     // console.log("ID in parent: ", actor.id);
   };
 
@@ -64,6 +77,19 @@ export default function AddMoviePage(props) {
     setSelectedActors((prevSelectedActors) =>
       selectedActors.filter((actor) => lid != actor.id)
     );
+  };
+
+  const handleRemoveGenre = (evt) => {
+    const lid = evt.target.parentNode.id;
+    console.log("remove in parent: ", lid);
+    setSelectedGenres((prevSelectedGenres) =>
+      selectedGenres.filter((genre) => lid != genre.id)
+    );
+  };
+
+  const handleAddActorToList = (evt) => {
+    evt.preventDefault();
+    console.log("called handleAddActorToList");
   };
 
   const actorID = null;
@@ -146,14 +172,11 @@ export default function AddMoviePage(props) {
           ></textarea>
         </div>
         <div className={styles.grid}>
-          <h4>Mitwirkende:</h4>
-
-          <h4>Darsteller:</h4>
-
           <div>
+            <h4>Besetzung:</h4>
             {selectedActors.map((actor) => {
               return (
-                <div>
+                <div className={styles.grid1}>
                   <FontAwesomeIcon
                     icon={faUserNinja}
                     style={{ fontSize: "20px", marginRight: "10px" }}
@@ -163,43 +186,83 @@ export default function AddMoviePage(props) {
                     id={actor.id}
                     icon={faCircleMinus}
                     onClick={handleRemoveActor}
-                    style={{ fontSize: "20px", marginLeft: "10px" }}
+                    style={{
+                      fontSize: "20px",
+                      marginLeft: "10px",
+                      color: "red",
+                    }}
                   />
                 </div>
               );
             })}
           </div>
           <div>
+            <div>
+              <h4 style={{ display: "inline-block" }}>Darstellerliste:</h4>
+              <button
+                onClick={() => setShowModal(true)}
+                style={{ marginLeft: "30px" }}
+              >
+                Darsteller hinzufügen
+              </button>
+            </div>
             <ActorAdder
               addActor={handleAddActor}
               selectedActors={selectedActors}
             />
           </div>
-        </div>
-      </form>
-      <div className={styles.grid}>
-        <div>Genres</div>
-        <div>
-          <h4>Genres</h4>
+
           <div>
-            <GenreAdder />
+            <h4>zugeordnete Genres:</h4>
+            {selectedGenres.map((genre) => {
+              return (
+                <div className={styles.grid1}>
+                  <FontAwesomeIcon
+                    icon={faStore}
+                    style={{ fontSize: "20px", marginRight: "10px" }}
+                  />
+                  {genre.name}
+                  <FontAwesomeIcon
+                    id={genre.id}
+                    icon={faCircleMinus}
+                    onClick={handleRemoveGenre}
+                    style={{
+                      fontSize: "20px",
+                      marginLeft: "10px",
+                      color: "red",
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          <div>
+            <h4>verfügbare Genres:</h4>
+            <GenreAdder
+              addGenre={handleAddGenre}
+              selectedGenres={selectedGenres}
+            />
           </div>
         </div>
-      </div>
+      </form>
+      <Modal show={showModal} onClose={() => setShowModal(false)}>
+        Darsteller erfassen
+      </Modal>
     </Layout>
   );
 }
 
-export async function getStaticProps() {
-  const res2 = await fetch(
-    `${STRAPI_URL}/genres?pagination[page]=1&pagination[pageSize]=20&pagination[withCount]=true`
-  );
-  const data2 = await res2.json();
-  const genres = data2.data;
-  // console.log("Actors found: ", actors.length);
-  return {
-    props: {
-      genreListe: genres,
-    },
-  };
-}
+// export async function getStaticProps() {
+//   // const res2 = await fetch(
+//   //   `${STRAPI_URL}/genres?sort=genre&pagination[page]=1&pagination[pageSize]=20&pagination[withCount]=true`
+//   // );
+//   // const data2 = await res2.json();
+//   // const genres = data2.data;
+//   // // console.log("Actors found: ", actors.length);
+//   // return {
+//   //   props: {
+//   //     genreListe: genres,
+//   //   },
+//   // };
+//   return null;
+// }
