@@ -9,11 +9,14 @@ import GenreAdder from "@components/GenreAdder";
 import Modal from "@components/Modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faUser,
   faUserNinja,
   faCircleMinus,
   faCirclePlus,
   faStore,
 } from "@fortawesome/free-solid-svg-icons";
+import ActorForm from "@components/ActorForm";
+import { responseSymbol } from "next/dist/server/web/spec-compliant/fetch-event";
 
 export default function AddMoviePage(props) {
   const myGenres = props.genreListe;
@@ -46,6 +49,10 @@ export default function AddMoviePage(props) {
   //   evt.target.value = "";
   // };
 
+  const handleDarstellerListe = (e) => {
+    e.preventDefault();
+    setShowModal(true);
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("handleSubmit ...");
@@ -55,6 +62,7 @@ export default function AddMoviePage(props) {
     const { name, value } = e.target;
     setValues({ ...values, [name]: value });
   };
+
   const handleAddActor = (actor) => {
     setSelectedActors((prevSelectedActors) => [...selectedActors, actor]);
     // console.log("ID in parent: ", actor.id);
@@ -63,6 +71,31 @@ export default function AddMoviePage(props) {
   const handleAddGenre = (genre) => {
     setSelectedGenres((prevSelectedGenres) => [...selectedGenres, genre]);
     // console.log("ID in parent: ", actor.id);
+  };
+
+  const handleNewActor = async (v) => {
+    // e.preventDefault();
+    setShowModal(false);
+    // console.log("neuer Darsteller: ", v);
+    // neuen Darsteller in Strapi speichern, falls Name bereits existiert Fehlermeldung!
+    const response = await fetch(`${STRAPI_URL}/actors`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: `{"data": {"name": "${v.vorname} ${v.nachname}"}}`,
+    });
+    // console.log(response);
+    if (response.ok) {
+      let res = await response.json();
+      console.log(res);
+      let newActor = {
+        id: res.data.id,
+        name: res.data.attributes.name,
+      };
+      handleAddActor(newActor);
+      // console.log(newActor);
+    }
   };
 
   const getName = (id) => {
@@ -87,12 +120,12 @@ export default function AddMoviePage(props) {
     );
   };
 
-  const handleAddActorToList = (evt) => {
-    evt.preventDefault();
-    console.log("called handleAddActorToList");
-  };
+  // const handleAddActorToList = (evt) => {
+  //   evt.preventDefault();
+  //   console.log("called handleAddActorToList");
+  // };
 
-  const actorID = null;
+  // const actorID = null;
 
   return (
     <Layout title="Film erfassen">
@@ -178,7 +211,7 @@ export default function AddMoviePage(props) {
               return (
                 <div className={styles.grid1}>
                   <FontAwesomeIcon
-                    icon={faUserNinja}
+                    icon={faUser}
                     style={{ fontSize: "20px", marginRight: "10px" }}
                   />
                   {actor.name}
@@ -200,7 +233,7 @@ export default function AddMoviePage(props) {
             <div>
               <h4 style={{ display: "inline-block" }}>Darstellerliste:</h4>
               <button
-                onClick={() => setShowModal(true)}
+                onClick={handleDarstellerListe}
                 style={{ marginLeft: "30px" }}
               >
                 Darsteller hinzufügen
@@ -245,8 +278,15 @@ export default function AddMoviePage(props) {
           </div>
         </div>
       </form>
-      <Modal show={showModal} onClose={() => setShowModal(false)}>
-        Darsteller erfassen
+      <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        title="Schauspieler"
+      >
+        <ActorForm
+          onCancel={() => setShowModal(false)}
+          onSave={handleNewActor}
+        ></ActorForm>
       </Modal>
     </Layout>
   );
